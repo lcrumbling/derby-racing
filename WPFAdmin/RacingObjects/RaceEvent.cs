@@ -185,6 +185,16 @@ namespace GSRacing.RacingObjects
                 res.AvgRaceTime = allHeats.Where(hi => hi.Racer == r).Average(x => x.RaceTime.Value);
                 this.Results.Add(res);
             }
+
+            IOrderedEnumerable<RaceResult> ioerr = this.Results.OrderBy(x => x.AvgRaceTime);
+            int i = 1;
+            foreach (RaceResult rr in ioerr)
+            {
+                rr.PlaceNumber = i;
+                i++;
+            }
+            this.Results = new ObservableCollection<RaceResult>(ioerr);
+
         }
     }
 }

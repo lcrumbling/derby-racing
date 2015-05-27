@@ -161,6 +161,7 @@ namespace GSRacing.RacingAdmin
             {
                 this.Set(ref _currentHeat, value);
                 RaisePropertyChanged("NextHeat");
+                RaisePropertyChanged("PreviousHeat");
                 RaisePropertyChanged("HeatText");
             }
         }
@@ -187,13 +188,25 @@ namespace GSRacing.RacingAdmin
                 return this.Event.Heats[currIndex + 1];
             }
         }
+        public RaceHeat PreviousHeat
+        {
+            get
+            {
+                int currIndex = this.Event.Heats.IndexOf(this.CurrentHeat);
+                if (currIndex == 0)
+                    return null;
+
+                return this.Event.Heats[currIndex - 1];
+            }
+        }
+
 
         public MainViewModel()
         {
             timerCountdown.Interval = new TimeSpan(0, 0, 1);
             timerCountdown.Tick += timer_Tick;
 
-            this.sp = new SerialPort("COM1", 9600, Parity.None, 8, StopBits.One);
+            this.sp = new SerialPort("COM18", 9600, Parity.None, 8, StopBits.One);
             this.sp.DataReceived += sp_DataReceived;
             this.sp.Open();
             szSerialBuffer = string.Empty;
@@ -331,12 +344,13 @@ namespace GSRacing.RacingAdmin
             if (iSTXIndex > -1)
             {
                 int iETXIndex = szSerialBuffer.IndexOf(ETX);
-                if (iSTXIndex > -1)
+                if (iETXIndex > -1)
                 {
-                    string szMessage = szSerialBuffer.Substring(iSTXIndex + 1, iSTXIndex - iETXIndex - 1);
-                    szSerialBuffer = szSerialBuffer.Remove(iSTXIndex, iSTXIndex - iETXIndex);
+                    string szMessage = szSerialBuffer.Substring(iSTXIndex + 1, iETXIndex - iSTXIndex -1);
+                    szSerialBuffer = szSerialBuffer.Remove(iSTXIndex, (iETXIndex + 1) - iSTXIndex);
                     InRace = false;
                     ParseMessage(szMessage);
+                    this.CurrentHeat.Completed = true;
                 }
             }
             
@@ -348,7 +362,7 @@ namespace GSRacing.RacingAdmin
             string[] rgszTimes = szMessage.Split('|');
             foreach (string szTime in rgszTimes)
             {
-                string[] rgszTimeItems = szMessage.Split(':');
+                string[] rgszTimeItems = szTime.Split(':');
                 int iTrackNum = 0;
                 decimal dcRaceTime = 0;
                 if (int.TryParse(rgszTimeItems[0], out iTrackNum))
@@ -418,6 +432,22 @@ namespace GSRacing.RacingAdmin
             }
         }
 
+        RelayCommand _resetHeatCommand;
+        public RelayCommand ResetHeatCommand
+        {
+            get
+            {
+                if (_resetHeatCommand == null)
+                {
+                    _resetHeatCommand = new RelayCommand(this.ResetHeat);
+                }
+                return _resetHeatCommand;
+            }
+        }
+
+            
+
+
         RelayCommand _sendStartRaceCommand;
         public RelayCommand SendStartRaceCommand
         {
@@ -441,6 +471,40 @@ namespace GSRacing.RacingAdmin
                     _sendCloseGateCommand = new RelayCommand(this.SendCloseGateSerialCommand);
                 }
                 return _sendCloseGateCommand;
+            }
+        }
+
+        RelayCommand _goBackToLastHeatCommand;
+        public RelayCommand GoBackToLastHeatCommand
+        {
+            get
+            {
+                if (_goBackToLastHeatCommand == null)
+                {
+                    _goBackToLastHeatCommand = new RelayCommand(this.GoBackToLastHeat);
+                }
+                return _goBackToLastHeatCommand;
+            }
+        }
+
+
+        private void GoBackToLastHeat()
+        {
+            if (PreviousHeat != null)
+            {
+                this.CurrentHeat = PreviousHeat;
+            }
+        }
+
+        private void ResetHeat()
+        {
+            if (CurrentHeat == null)
+                return;
+
+            this.CurrentHeat.Completed = false;
+            foreach (HeatTime ht in this.CurrentHeat.HeatTimes)
+            {
+                ht.RaceTime = null;
             }
         }
 

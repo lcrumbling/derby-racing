@@ -60,7 +60,7 @@ namespace GSRacing.RacingObjects
         }
         public string FullName
         {
-            get { return string.Format("{0} {1}", this.FirstName, this.LastName);  }
+            get { return string.Format("{0} {1} [#{2}]", this.FirstName, this.LastName, this.RegNumber);  }
         }
 
     }

@@ -36,7 +36,19 @@ namespace GSRacing.RacingObjects
             set
             {
                 this.Set(ref this._avgRaceTime, value);
+                RaisePropertyChanged("FormattedRaceTime");
             }
+        }
+        public string FormattedRaceTime
+        {
+            get
+            {
+                if (this.AvgRaceTime.HasValue)
+                    return string.Format("{0}s", this.AvgRaceTime.Value.ToString("F3"));
+
+                return "---";
+            }
+
         }
 
     }

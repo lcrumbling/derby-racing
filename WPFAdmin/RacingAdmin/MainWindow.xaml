@@ -7,6 +7,8 @@
     <Window.InputBindings>
         <KeyBinding Command="{Binding SendStartRaceCommand}" Key="Space"/>
         <KeyBinding Command="{Binding SendCloseGateCommand}" Key="c"/>
+        <KeyBinding Command="{Binding ResetHeatCommand}" Key="r"/>
+        <KeyBinding Command="{Binding GoBackToLastHeatCommand}" Key="b" />
     </Window.InputBindings>
     <Window.Resources>
         <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -70,8 +72,8 @@
         <Grid x:Name="gridCurrentHeat" Visibility="{Binding CurrentHeatVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="491*"/>
-                <ColumnDefinition Width="209*"/>
+                <ColumnDefinition Width="400*"/>
+                <ColumnDefinition Width="300*"/>
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0">
                 <TextBlock Text="{Binding HeatText}" Padding="10,0,10,0" FontSize="72" Background="#FF6A2D02" Foreground="White" Margin="10,20,10,0" Height="102" VerticalAlignment="Top"></TextBlock>

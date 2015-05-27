@@ -109,6 +109,7 @@ namespace GSRacing.RacingObjects
             set
             {
                 this.Set(ref this._raceTime, value);
+                RaisePropertyChanged("FormattedRaceTime");
             }
         }
 

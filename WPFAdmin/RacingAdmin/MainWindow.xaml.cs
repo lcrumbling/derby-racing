@@ -26,7 +26,16 @@ namespace GSRacing.RacingAdmin
         {
             vm = new MainViewModel();
             this.DataContext = vm;
-            InitializeComponent();
+
+
+            try
+            {
+                InitializeComponent();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.InnerException.ToString(), "Error");
+            }
         }
     }
 }
