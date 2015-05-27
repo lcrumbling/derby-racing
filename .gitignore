@@ -2,3 +2,6 @@
 /WPFAdmin/RacingObjects/obj
 /WPFAdmin/*.suo
 *.suo
+
+WPFAdmin/RacingAdmin/Icons/Thumbs.db
+*.user

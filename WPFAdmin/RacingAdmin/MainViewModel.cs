@@ -325,8 +325,6 @@ namespace GSRacing.RacingAdmin
                 IsRaceComputerReady = true;
                 szSerialBuffer = szSerialBuffer.Remove(iACKIndex, 1);
             }
-
-            
             
             // if got ack, set ready
             int iSTXIndex = szSerialBuffer.IndexOf(STX);
@@ -450,13 +448,13 @@ namespace GSRacing.RacingAdmin
         {
             if (!this.CurrentHeat.Completed)
             {
+                System.Windows.Media.MediaPlayer mp = new System.Windows.Media.MediaPlayer();
+                Uri uri1 = new Uri(@"pack://siteoforigin:,,,/Sounds/lights.wav", UriKind.Absolute);
+                mp.Open(uri1);
+                mp.Play();
                 this.CountdownVisible = true;
                 this.CountdownAmt = 4;
                 this.timerCountdown.Start();
-                System.Windows.Media.MediaPlayer mp = new System.Windows.Media.MediaPlayer();
-                Uri uri1 = new Uri(@"../../Resources/lights.wav", UriKind.Relative);
-                mp.Open(uri1);
-                mp.Play();
             }
             else
             {

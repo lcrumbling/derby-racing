@@ -49,7 +49,6 @@
                         <Style.Triggers>
                             <EventTrigger RoutedEvent="UIElement.PreviewMouseDown">
                                 <EventTrigger.Actions>
-                                    <!--<SoundPlayerAction Source="/Resources/race.wav" />-->
                                     <SoundPlayerAction Source="pack://siteoforigin:,,,/Sounds/race.wav" />
                                 </EventTrigger.Actions>
                             </EventTrigger>
@@ -57,11 +56,13 @@
                     </Style>
                 </Button.Style>
             </Button>
-            <ListBox x:Name="lbHeats" 
-                    ItemsSource="{Binding Event.Heats}"  
-                    ItemTemplate="{DynamicResource HeatPreviewItem}"
-                     HorizontalContentAlignment="Stretch"
-                    ScrollViewer.VerticalScrollBarVisibility="Visible" Margin="10,46,10,10"/>
+            <ItemsControl x:Name="icHeatsPreview" 
+                          Margin="10,46,10,10" 
+                          Grid.Column="1" 
+                          ScrollViewer.VerticalScrollBarVisibility="Visible"
+                          ItemTemplate="{DynamicResource HeatPreviewItem}" 
+                          HorizontalContentAlignment="Stretch"
+                          ItemsSource="{Binding Event.Heats}" />
         </Grid>
 
 
@@ -73,17 +74,19 @@
                 <ColumnDefinition Width="209*"/>
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0">
-                <TextBlock Text="{Binding HeatText}" Padding="10,0,10,0" FontSize="72" Background="Brown" Foreground="White" Margin="10,20,10,0" Height="102" VerticalAlignment="Top"></TextBlock>
+                <TextBlock Text="{Binding HeatText}" Padding="10,0,10,0" FontSize="72" Background="#FF6A2D02" Foreground="White" Margin="10,20,10,0" Height="102" VerticalAlignment="Top"></TextBlock>
             </Grid>
             <ItemsControl Margin="10,150,10,10" Grid.Column="0" ItemTemplate="{DynamicResource HeatTimeItem}" ItemsSource="{Binding CurrentHeat.HeatTimes}" />
             <Grid Grid.Column="1">
                 <TextBlock Text="On Deck" FontSize="32" Foreground="White" Margin="10,10,10,0"></TextBlock>
             </Grid>
             <ItemsControl x:Name="icNextHeat" Margin="10,70,10,10" Grid.Column="1" ItemTemplate="{DynamicResource NextHeatTimeItem}" ItemsSource="{Binding NextHeat.HeatTimes}" />
+            <Image Source="icons/browniecrall.png" Grid.Column="1" Margin="10,300,10,0" />
+
         </Grid>
 
         <Grid x:Name="gridFinalResults" Visibility="{Binding FinalResultsVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <ItemsControl x:Name="icFinalResults" Margin="10,50,10,10" Grid.Column="1" ItemTemplate="{DynamicResource FinalResultItem}" ItemsSource="{Binding Event.Results}" />
+            <ItemsControl x:Name="icFinalResults" Margin="10,50,10,0" Grid.Column="1" ItemTemplate="{DynamicResource FinalResultItem}" ItemsSource="{Binding Event.Results}" />
         </Grid>        
         
         <Grid x:Name="gridCountdown" Visibility="{Binding CountdownVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -92,7 +95,7 @@
                 <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="400*"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Height="200" Width="200" Padding="80,50,0,0" Text="{Binding CountdownText}" HorizontalAlignment="Center" FontSize="72" Grid.Column="1" Foreground="White" Background="Brown"></TextBlock>
+            <TextBlock Height="200" Width="200" Padding="80,50,0,0" Text="{Binding CountdownText}" HorizontalAlignment="Center" FontSize="72" Grid.Column="1" Foreground="White" Background="#FF6A2D02"></TextBlock>
         </Grid>        
     </Grid>
 </Window>
