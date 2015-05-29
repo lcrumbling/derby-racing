@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight;
+using SQLite;
 
 namespace GSRacing.RacingObjects
 {
     public class RaceHeat: ObservableObject
     {
         private Guid _heatID;
+        [PrimaryKey]
         public Guid HeatID
         {
             get { return _heatID; }
@@ -20,6 +22,7 @@ namespace GSRacing.RacingObjects
         }
 
         private int _heatNumber;
+        [Indexed]
         public int HeatNumber
         {
             get { return _heatNumber; }
@@ -30,6 +33,7 @@ namespace GSRacing.RacingObjects
         }
 
         private Guid _eventID;
+        [Indexed]
         public Guid EventID
         {
             get { return _eventID; }
@@ -40,6 +44,7 @@ namespace GSRacing.RacingObjects
         }
 
         private ObservableCollection<HeatTime> _heatTimes;
+        [Ignore]
         public ObservableCollection<HeatTime> HeatTimes
         {
             get { return _heatTimes; }
@@ -66,65 +71,24 @@ namespace GSRacing.RacingObjects
         public bool HasRacer(Guid RacerID)
         {
             // is this racer already in this heat?
-            return (this.HeatTimes.Count(x => x.Racer.RacerID == RacerID) > 0);
-        }
-    }
-
-    public class HeatTime: ObservableObject
-    {
-        private Guid _heatID;
-        public Guid HeatID
-        {
-            get { return _heatID; }
-            set
-            {
-                this.Set(ref this._heatID, value);
-            }
+            return (this.HeatTimes.Count(x => x.RacerID == RacerID) > 0);
         }
 
-        private Racer _racer;
-        public Racer Racer
+        public void Save(SQLiteConnection db)
         {
-            get { return _racer; }
-            set
+            RaceHeat re = db.Find<RaceHeat>(x => x.HeatID == this.HeatID);
+            if (re == null)
+                db.Insert(this);
+            else
+                db.Update(this);
+
+            foreach (HeatTime ht in this.HeatTimes)
             {
-                this.Set(ref this._racer, value);
+                ht.Save(db);
             }
-        }
-
-        private int _trackNumber;
-        public int TrackNumber
-        {
-            get { return _trackNumber; }
-            set
-            {
-                this.Set(ref this._trackNumber, value);
-            }
-        }
-
-        private decimal? _raceTime;
-        public decimal? RaceTime
-        {
-            get { return _raceTime; }
-            set
-            {
-                this.Set(ref this._raceTime, value);
-                RaisePropertyChanged("FormattedRaceTime");
-            }
-        }
-
-        public string FormattedRaceTime
-        {
-            get
-            {
-                if (this.RaceTime.HasValue)
-                    return string.Format("{0}s", this.RaceTime.Value);
-
-                return "---";
-            }
-
         }
 
     }
+
 
 }

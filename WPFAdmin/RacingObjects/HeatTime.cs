@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,38 +8,27 @@ using SQLite;
 
 namespace GSRacing.RacingObjects
 {
-    public class RaceResult : ObservableObject
+    public class HeatTime : ObservableObject
     {
-        private Guid _raceResultID;
+        private Guid _heatTimeID;
         [PrimaryKey]
-        public Guid RaceResultID
+        public Guid HeatTimeID
         {
-            get { return _raceResultID; }
+            get { return _heatTimeID; }
             set
             {
-                this.Set(ref this._raceResultID, value);
+                this.Set(ref this._heatTimeID, value);
             }
         }
 
-        private int _placeNumber;
+        private Guid _heatID;
         [Indexed]
-        public int PlaceNumber
+        public Guid HeatID
         {
-            get { return _placeNumber; }
+            get { return _heatID; }
             set
             {
-                this.Set(ref this._placeNumber, value);
-            }
-        }
-
-        private Guid _eventID;
-        [Indexed]
-        public Guid EventID
-        {
-            get { return _eventID; }
-            set
-            {
-                this.Set(ref this._eventID, value);
+                this.Set(ref this._heatID, value);
             }
         }
 
@@ -58,13 +47,24 @@ namespace GSRacing.RacingObjects
             }
         }
 
-        private decimal? _avgRaceTime;
-        public decimal? AvgRaceTime
+        private int _trackNumber;
+        [Indexed]
+        public int TrackNumber
         {
-            get { return _avgRaceTime; }
+            get { return _trackNumber; }
             set
             {
-                this.Set(ref this._avgRaceTime, value);
+                this.Set(ref this._trackNumber, value);
+            }
+        }
+
+        private decimal? _raceTime;
+        public decimal? RaceTime
+        {
+            get { return _raceTime; }
+            set
+            {
+                this.Set(ref this._raceTime, value);
                 RaisePropertyChanged("FormattedRaceTime");
             }
         }
@@ -82,7 +82,7 @@ namespace GSRacing.RacingObjects
 
         private RaceEvent _parentEvent;
         [Ignore]
-        public RaceEvent ParentEvent
+        public RaceEvent ParentEvent 
         {
             get
             {
@@ -94,32 +94,35 @@ namespace GSRacing.RacingObjects
             }
         }
 
-
         [Ignore]
         public string FormattedRaceTime
         {
             get
             {
-                if (this.AvgRaceTime.HasValue)
-                    return string.Format("{0}s", this.AvgRaceTime.Value.ToString("F3"));
+                if (this.RaceTime.HasValue)
+                    return string.Format("{0}s", this.RaceTime.Value);
 
                 return "---";
             }
         }
 
-        public RaceResult()
+        /// <summary>
+        /// This public, parameterless constructor is only here for
+        /// SQLiteConnection.Find() and should not otherwise be used.
+        /// </summary>
+        public HeatTime()
         {
-        }
 
-        public RaceResult(RaceEvent raceEvent)
+        }
+        public HeatTime(RaceEvent raceEvent)
         {
             this._parentEvent = raceEvent;
         }
 
         public void Save(SQLiteConnection db)
         {
-            RaceResult rr = db.Find<RaceResult>(x => x.RaceResultID == this.RaceResultID);
-            if (rr == null)
+            HeatTime re = db.Find<HeatTime>(x => x.HeatTimeID == this.HeatTimeID);
+            if (re == null)
                 db.Insert(this);
             else
                 db.Update(this);

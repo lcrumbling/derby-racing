@@ -4,12 +4,33 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight;
+using SQLite;
 
 namespace GSRacing.RacingObjects
 {
     public class Racer : ObservableObject
     {
+
+        public Racer()
+        {
+        }
+        
+        public Racer(Guid guidRacerID)
+        {
+            
+        }
+
+        public void Save(SQLiteConnection db)
+        {
+            Racer r = db.Find<Racer>(x => x.RacerID == this.RacerID);
+            if (r == null)
+                db.Insert(this);
+            else
+                db.Update(this);
+        }
+
         private Guid _racerID;
+        [PrimaryKey]
         public Guid RacerID
         {
             get { return _racerID; }
@@ -20,6 +41,7 @@ namespace GSRacing.RacingObjects
         }
 
         private Guid _eventID;
+        [Indexed]
         public Guid EventID
         {
             get { return _eventID; }
@@ -58,6 +80,8 @@ namespace GSRacing.RacingObjects
                 this.Set(ref this._lastName, value);
             }
         }
+
+        [Ignore]
         public string FullName
         {
             get { return string.Format("{0} {1} [#{2}]", this.FirstName, this.LastName, this.RegNumber);  }

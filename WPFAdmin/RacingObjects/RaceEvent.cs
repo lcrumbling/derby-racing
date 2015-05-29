@@ -5,12 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight;
+using SQLite;
 
 namespace GSRacing.RacingObjects
 {
     public class RaceEvent : ObservableObject
     {
         private Guid _eventID;
+        [PrimaryKey]
         public Guid EventID
         {
             get { return _eventID; }
@@ -31,6 +33,7 @@ namespace GSRacing.RacingObjects
         }
 
         private DateTime _eventDate;
+        [Indexed]
         public DateTime EventDate
         {
             get { return _eventDate; }
@@ -39,7 +42,9 @@ namespace GSRacing.RacingObjects
                 this.Set(ref this._eventDate, value);
             }
         }
+
         private ObservableCollection<Racer> _racers;
+        [Ignore]
         public ObservableCollection<Racer> Racers
         {
             get { return _racers; }
@@ -50,6 +55,7 @@ namespace GSRacing.RacingObjects
         }
 
         private ObservableCollection<RaceHeat> _heats;
+        [Ignore]
         public ObservableCollection<RaceHeat> Heats
         {
             get { return _heats; }
@@ -60,6 +66,7 @@ namespace GSRacing.RacingObjects
         }
 
         private ObservableCollection<RaceResult> _results;
+        [Ignore]
         public ObservableCollection<RaceResult> Results
         {
             get { return _results; }
@@ -69,7 +76,7 @@ namespace GSRacing.RacingObjects
             }
         }
 
-        private int _trackCount;
+        private int _trackCount = 4;
         public int TrackCount
         {
             get { return _trackCount; }
@@ -79,6 +86,17 @@ namespace GSRacing.RacingObjects
             }
         }
 
+        private bool _completed = false;
+        public bool Completed
+        {
+            get { return _completed; }
+            set
+            {
+                this.Set(ref this._completed, value);
+            }
+        }
+
+        [Ignore]
         public IEnumerable<HeatTime> AllHeats
         {
             get
@@ -98,13 +116,54 @@ namespace GSRacing.RacingObjects
             this.Results = new ObservableCollection<RaceResult>();
         }
 
-        public string GetRacerName(Guid racerGuid)
+        public RaceEvent(Guid guidEventID, SQLiteConnection db)
         {
-            Racer r = this.Racers.First(x => x.RacerID == racerGuid);
-            return string.Format("{0} {1}.", r.FirstName, r.LastName.Substring(0, 1));
+            this.Load(guidEventID, db);
         }
 
-        public void CreateHeats()
+        public void Load(Guid guidEventID, SQLiteConnection db)
+        {
+            RaceEvent re = db.Table<RaceEvent>().Where(x => x.EventID == guidEventID).First();
+            this.Completed = re.Completed;
+            this.EventDate = re.EventDate;
+            this.EventID = re.EventID;
+            this.EventName = re.EventName;
+            this.TrackCount = re.TrackCount;
+
+            List<Racer> liRacer = db.Table<Racer>().Where(x => x.EventID == guidEventID).ToList();
+            this.Racers = new ObservableCollection<Racer>(liRacer);
+
+            List<RaceHeat> liHeats = db.Table<RaceHeat>().Where(x => x.EventID == guidEventID).ToList();
+            this.Heats = new ObservableCollection<RaceHeat>(liHeats);
+
+            foreach (RaceHeat rh in this.Heats)
+            {
+                List<HeatTime> liHeatTime = db.Table<HeatTime>().Where(x => x.HeatID == rh.HeatID).ToList();
+                rh.HeatTimes = new ObservableCollection<HeatTime>(liHeatTime);
+                foreach (HeatTime currHT in rh.HeatTimes)
+                {
+                    currHT.ParentEvent = this;
+                    currHT.RacerID = currHT.RacerID;
+                }
+            }
+
+            List<RaceResult> liResults = db.Table<RaceResult>().Where(x => x.EventID == guidEventID).ToList();
+            this.Results = new ObservableCollection<RaceResult>(liResults);
+            foreach (RaceResult currRR in this.Results)
+            {
+                currRR.ParentEvent = this;
+                currRR.RacerID = currRR.RacerID;
+            }
+
+        }
+
+        public Racer GetRacer(Guid racerGuid)
+        {
+            Racer r = this.Racers.First(x => x.RacerID == racerGuid);
+            return r;
+        }
+
+        public void CreateHeats(SQLiteConnection db)
         {
             // each race must run on each lane once.
             // x lanes are available to race on simultaneously
@@ -127,11 +186,12 @@ namespace GSRacing.RacingObjects
 
                 for (int j = 0; j < iTracks; j++)
                 {
-                    HeatTime ht = new HeatTime();
+                    HeatTime ht = new HeatTime(this);
+                    ht.HeatTimeID = Guid.NewGuid();
                     ht.HeatID = h.HeatID;
                     ht.TrackNumber = j + 1;
                     ht.RaceTime = null;
-                    ht.Racer = null;
+                    ht.RacerID = null;
                     h.HeatTimes.Add(ht);
                 }
             }
@@ -145,7 +205,7 @@ namespace GSRacing.RacingObjects
                         if (!ienumShuffled.MoveNext())
                             break;
                         HeatTime ht = heat.HeatTimes.First(x => x.TrackNumber == (i + 1));
-                        ht.Racer = ienumShuffled.Current;
+                        ht.RacerID = ienumShuffled.Current.RacerID;
                     }
                 }
                 Racer[] rgShuffledRacers = shuffledRacers.ToArray();
@@ -175,14 +235,16 @@ namespace GSRacing.RacingObjects
 
         }
 
-        public void CalculateResults()
+        public void CalculateResults(SQLiteConnection db)
         {
             IEnumerable<HeatTime> allHeats = this.AllHeats;
             foreach (Racer r in this.Racers)
             {
-                RaceResult res = new RaceResult();
-                res.Racer = r;
-                res.AvgRaceTime = allHeats.Where(hi => hi.Racer == r).Average(x => x.RaceTime.Value);
+                RaceResult res = new RaceResult(this);
+                res.RaceResultID = Guid.NewGuid();
+                res.EventID = this.EventID;
+                res.RacerID = r.RacerID;
+                res.AvgRaceTime = allHeats.Where(hi => hi.RacerID == r.RacerID).Average(x => x.RaceTime.Value);
                 this.Results.Add(res);
             }
 
@@ -194,7 +256,36 @@ namespace GSRacing.RacingObjects
                 i++;
             }
             this.Results = new ObservableCollection<RaceResult>(ioerr);
+        }
 
+        public void Save(SQLiteConnection db)
+        {
+            RaceEvent re = db.Find<RaceEvent>(x => x.EventID == this.EventID);
+            if (re == null)
+                db.Insert(this);
+            else
+                db.Update(this);
+
+            foreach (Racer r in this.Racers)
+            {
+                r.Save(db);
+            }
+
+            foreach (RaceHeat rh in this.Heats)
+            {
+                rh.Save(db);
+            }
+
+            foreach (RaceResult rr in this.Results)
+            {
+                rr.Save(db);
+            }
+
+        }
+        public static ObservableCollection<RaceEvent> AllEvents(SQLiteConnection db)
+        {
+            var query = db.Table<RaceEvent>();
+            return new ObservableCollection<RaceEvent>(query.ToList());
         }
     }
 }

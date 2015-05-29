@@ -1,4 +1,4 @@
-﻿<Window x:Class="GSRacing.RacingAdmin.MainWindow"
+<Window x:Class="GSRacing.RacingAdmin.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
@@ -6,9 +6,9 @@
         Title="Race Administrator" Height="448" Width="708" Background="Green">
     <Window.InputBindings>
         <KeyBinding Command="{Binding SendStartRaceCommand}" Key="Space"/>
-        <KeyBinding Command="{Binding SendCloseGateCommand}" Key="c"/>
-        <KeyBinding Command="{Binding ResetHeatCommand}" Key="r"/>
-        <KeyBinding Command="{Binding GoBackToLastHeatCommand}" Key="b" />
+        <KeyBinding Command="{Binding SendCloseGateCommand}" Key="F1"/>
+        <KeyBinding Command="{Binding ResetHeatCommand}" Key="F2"/>
+        <KeyBinding Command="{Binding GoBackToLastHeatCommand}" Key="F3" />
     </Window.InputBindings>
     <Window.Resources>
         <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -25,6 +25,27 @@
     <Grid>
         <MediaElement Name="mePlayer" Visibility="Hidden" LoadedBehavior="Manual" Stretch="None"  />
 
+        <Grid x:Name="gridEventMenu" Visibility="{Binding EventMenuVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <TextBlock Text="Select Event:" HorizontalAlignment="Left" Style="{DynamicResource NormalText}" Margin="40,43,0,0" VerticalAlignment="Top" />
+            <ComboBox ItemsSource="{Binding AllEvents}" 
+                      DisplayMemberPath="EventName"
+                      SelectedValuePath="EventID"
+                      SelectedValue="{Binding SelectedEventID}"
+                      Margin="130,40,0,0"
+                      Width="250"
+                      HorizontalAlignment="Left"
+                      VerticalAlignment="Top"
+                      />
+            <Button Content="Load Event"  Width="100" HorizontalAlignment="Left" 
+                        Command="{Binding Path=DataContext.LoadEventCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" 
+                    Margin="388,37,0,0" 
+                    Height="31" VerticalAlignment="Top" />
+            <Button Content="Create Event"  Width="100" HorizontalAlignment="Left" 
+                        Command="{Binding Path=DataContext.CreateEventCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" 
+                    Margin="490,37,0,0" 
+                    Height="31" VerticalAlignment="Top" />
+        </Grid>
+
         <Grid x:Name="gridRacers" Visibility="{Binding RacersVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <TextBlock Text="Event Name:" HorizontalAlignment="Left" Style="{DynamicResource NormalText}" Margin="40,43,0,0" VerticalAlignment="Top" />
             <TextBox Text="{Binding Event.EventName}" HorizontalAlignment="Left" Width="347" Margin="112,38,0,0" Height="23" VerticalAlignment="Top"/>
@@ -34,7 +55,7 @@
             <xctk:IntegerUpDown Value="{Binding Event.TrackCount}" Minimum="2" Maximum="24" HorizontalAlignment="Left" Margin="332,14,0,0" Height="22" Width="61" VerticalAlignment="Top"/>
             <Button Content="Add Racer"  Width="100" HorizontalAlignment="Right" 
                         Command="{Binding Path=DataContext.AddNewRacerCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Margin="0,35,115,0" Height="31" VerticalAlignment="Top" />
-            <Button Content="Create Heats"  Width="100" HorizontalAlignment="Right" 
+            <Button Content="Continue"  Width="100" HorizontalAlignment="Right" 
                         Command="{Binding Path=DataContext.CreateHeatsCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Margin="0,35,10,0" Height="31" VerticalAlignment="Top" />
             <ListBox x:Name="lbRacers" 
                     ItemsSource="{Binding Event.Racers}"  
@@ -43,32 +64,36 @@
                     ScrollViewer.VerticalScrollBarVisibility="Visible" Margin="10,81,10,10"/>
         </Grid>
         <Grid x:Name="gridHeats" Visibility="{Binding HeatsVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <Button Content="Start Race"  Width="100" HorizontalAlignment="Right" 
-                        Command="{Binding Path=DataContext.StartRaceCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" 
-                    Margin="0,10,10,0" Height="31" VerticalAlignment="Top">
-                <Button.Style>
-                    <Style>
-                        <Style.Triggers>
-                            <EventTrigger RoutedEvent="UIElement.PreviewMouseDown">
-                                <EventTrigger.Actions>
-                                    <SoundPlayerAction Source="pack://siteoforigin:,,,/Sounds/race.wav" />
-                                </EventTrigger.Actions>
-                            </EventTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
-            <ItemsControl x:Name="icHeatsPreview" 
-                          Margin="10,46,10,10" 
-                          Grid.Column="1" 
-                          ScrollViewer.VerticalScrollBarVisibility="Visible"
-                          ItemTemplate="{DynamicResource HeatPreviewItem}" 
-                          HorizontalContentAlignment="Stretch"
-                          ItemsSource="{Binding Event.Heats}" />
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <Grid>                
+                    <Button Content="Continue"  Width="100" HorizontalAlignment="Right" 
+                                Command="{Binding Path=DataContext.StartRaceCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" 
+                            Margin="0,10,10,0" Height="31" VerticalAlignment="Top">
+                        <Button.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <EventTrigger RoutedEvent="UIElement.PreviewMouseDown">
+                                        <EventTrigger.Actions>
+                                            <SoundPlayerAction Source="pack://siteoforigin:,,,/Sounds/race.wav" />
+                                        </EventTrigger.Actions>
+                                    </EventTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <ItemsControl x:Name="icHeatsPreview" 
+                                  Margin="10,46,10,10" 
+                                  Grid.Column="1" 
+                                  ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                  ItemTemplate="{DynamicResource HeatPreviewItem}" 
+                                  HorizontalContentAlignment="Stretch"
+                                  ItemsSource="{Binding Event.Heats}" />
+                </Grid>
+            </ScrollViewer>
         </Grid>
 
 
-        
+
         <Grid x:Name="gridCurrentHeat" Visibility="{Binding CurrentHeatVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
 
             <Grid.ColumnDefinitions>
@@ -89,8 +114,8 @@
 
         <Grid x:Name="gridFinalResults" Visibility="{Binding FinalResultsVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <ItemsControl x:Name="icFinalResults" Margin="10,50,10,0" Grid.Column="1" ItemTemplate="{DynamicResource FinalResultItem}" ItemsSource="{Binding Event.Results}" />
-        </Grid>        
-        
+        </Grid>
+
         <Grid x:Name="gridCountdown" Visibility="{Binding CountdownVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="400*"/>
@@ -98,6 +123,6 @@
                 <ColumnDefinition Width="400*"/>
             </Grid.ColumnDefinitions>
             <TextBlock Height="200" Width="200" Padding="80,50,0,0" Text="{Binding CountdownText}" HorizontalAlignment="Center" FontSize="72" Grid.Column="1" Foreground="White" Background="#FF6A2D02"></TextBlock>
-        </Grid>        
+        </Grid>
     </Grid>
 </Window>
