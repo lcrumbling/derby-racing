@@ -250,7 +250,7 @@ namespace GSRacing.RacingAdmin
             timerCountdown.Interval = new TimeSpan(0, 0, 1);
             timerCountdown.Tick += timer_Tick;
 
-            this.sp = new SerialPort("COM18", 9600, Parity.None, 8, StopBits.One);
+            this.sp = new SerialPort("COM11", 9600, Parity.None, 8, StopBits.One);
             this.sp.DataReceived += sp_DataReceived;
             szSerialBuffer = string.Empty;
 

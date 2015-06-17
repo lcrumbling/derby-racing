@@ -113,7 +113,12 @@
         </Grid>
 
         <Grid x:Name="gridFinalResults" Visibility="{Binding FinalResultsVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <ItemsControl x:Name="icFinalResults" Margin="10,50,10,0" Grid.Column="1" ItemTemplate="{DynamicResource FinalResultItem}" ItemsSource="{Binding Event.Results}" />
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <Grid>
+                    <TextBlock Text="Final Standings" Margin="30,1,0,0" FontSize="60" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="Yellow"/>
+                    <ItemsControl x:Name="icFinalResults" Margin="10,90,10,0" Grid.Column="1" ItemTemplate="{DynamicResource FinalResultItem}" ItemsSource="{Binding Event.Results}" />
+                </Grid>
+            </ScrollViewer>
         </Grid>
 
         <Grid x:Name="gridCountdown" Visibility="{Binding CountdownVisible, Converter={StaticResource BooleanToVisibilityConverter}}">

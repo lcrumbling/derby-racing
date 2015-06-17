@@ -54,7 +54,7 @@
                 <RowDefinition Height="209*"/>
             </Grid.RowDefinitions>
             <Grid x:Name="racerItem" Background="{x:Null}" Grid.Row="0">
-                <Rectangle x:Name="ItemBord" Fill="#FFA0A0A0" HorizontalAlignment="Stretch" Height="Auto" Margin="0" Stroke="{x:Null}" VerticalAlignment="Stretch" Width="Auto" Visibility="Visible"/>
+                <Rectangle x:Name="ItemBord" Fill="#FF808080" HorizontalAlignment="Stretch" Height="Auto" Margin="0" Stroke="{x:Null}" VerticalAlignment="Stretch" Width="Auto" Visibility="Visible"/>
                 <TextBlock Text="{Binding TrackNumber}" FontSize="40"  Margin="30,5,0,10" Foreground="White" VerticalAlignment="Top" ></TextBlock>
                 <TextBlock Text="{Binding Racer.FullName}" FontSize="40" Foreground="White" Margin="105,5,10,5" TextWrapping="Wrap" VerticalAlignment="Top"/>
             </Grid>
@@ -67,7 +67,7 @@
     <DataTemplate x:Key="NextHeatTimeItem">
         <Grid>
             <Grid x:Name="racerItem" Background="{x:Null}">
-                <Rectangle x:Name="ItemBord" Fill="#FFA0A0A0" HorizontalAlignment="Stretch" Height="Auto" Margin="0" Stroke="{x:Null}" VerticalAlignment="Stretch" Width="Auto" Visibility="Visible"/>
+                <Rectangle x:Name="ItemBord" Fill="#FF808080" HorizontalAlignment="Stretch" Height="Auto" Margin="0" Stroke="{x:Null}" VerticalAlignment="Stretch" Width="Auto" Visibility="Visible"/>
                 <TextBlock Text="{Binding TrackNumber}" FontSize="32"  Margin="15,5,0,10" Foreground="White" VerticalAlignment="Top" ></TextBlock>
                 <TextBlock Text="{Binding Racer.FullName}" FontSize="32" Foreground="White" Margin="60,5,10,5" TextWrapping="Wrap" VerticalAlignment="Top"/>
             </Grid>
@@ -77,10 +77,10 @@
     <DataTemplate x:Key="FinalResultItem">
         <Grid>
             <Grid x:Name="racerResultItem" Background="{x:Null}">
-                <Rectangle x:Name="ItemBord" Fill="#FFA0A0A0" HorizontalAlignment="Stretch" Height="Auto" Margin="0" Stroke="{x:Null}" VerticalAlignment="Stretch" Width="Auto" Visibility="Visible"/>
+                <Rectangle x:Name="ItemBord" Fill="#FF808080" HorizontalAlignment="Stretch" Height="Auto" Margin="0" Stroke="{x:Null}" VerticalAlignment="Stretch" Width="Auto" Visibility="Visible"/>
                 <TextBlock Text="{Binding PlaceNumber}" FontSize="20"  Margin="15,5,0,10" Foreground="White" VerticalAlignment="Top" ></TextBlock>
                 <TextBlock Text="{Binding Racer.FullName}" FontSize="20" Foreground="White" Margin="60,5,250,5" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                <TextBlock Text="{Binding FormattedRaceTime}" FontSize="20" Foreground="White" Margin="280,5,10,5" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBlock Text="{Binding FormattedRaceTime}" FontSize="20" Foreground="White" Margin="400,5,10,5" TextWrapping="Wrap" VerticalAlignment="Top"/>
             </Grid>
         </Grid>
     </DataTemplate>
